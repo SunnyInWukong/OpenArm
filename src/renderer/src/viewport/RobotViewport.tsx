@@ -5,6 +5,7 @@ import type { Mesh } from 'three'
 import type { URDFRobot } from 'urdf-loader'
 import { movableJointNames, solveIK, toolWorldPose } from '../kinematics/ik'
 import { initReplay, stepReplay, type ReplayState } from '../kinematics/replay'
+import { ensureBVH, highlight, robotCollisions } from '../collision'
 import { useStore } from '../state/store'
 
 function Fallback({ error }: { error: string | null }) {
@@ -83,6 +84,23 @@ function ReplayRunner({ robot, onChange }: { robot: URDFRobot; onChange: () => v
   return null
 }
 
+// Per-frame robot↔part collision check; tints colliding links + sets store flag.
+function CollisionChecker({ robot }: { robot: URDFRobot }) {
+  const parts = useStore((s) => s.parts)
+  const setColliding = useStore((s) => s.setColliding)
+  useFrame(() => {
+    ensureBVH(robot)
+    for (const p of parts) ensureBVH(p.object)
+    const hits = robotCollisions(
+      robot,
+      parts.map((p) => p.object)
+    )
+    highlight(robot, hits)
+    setColliding(hits.size > 0)
+  })
+  return null
+}
+
 export default function RobotViewport({
   robot,
   error,
@@ -95,6 +113,7 @@ export default function RobotViewport({
   const [mode, setMode] = useState<'translate' | 'rotate'>('translate')
   const [reachable, setReachable] = useState(true)
   const parts = useStore((s) => s.parts)
+  const colliding = useStore((s) => s.colliding)
 
   return (
     <>
@@ -113,6 +132,7 @@ export default function RobotViewport({
             <primitive object={robot} />
             <IKGizmo robot={robot} mode={mode} onChange={onChange} onReach={setReachable} />
             <ReplayRunner robot={robot} onChange={onChange} />
+            <CollisionChecker robot={robot} />
           </>
         ) : (
           <Fallback error={error} />
@@ -142,6 +162,11 @@ export default function RobotViewport({
             IK: {mode}
           </button>
           {!reachable && <span style={{ color: '#ff6b6b', fontSize: 12 }}>unreachable</span>}
+          {colliding && (
+            <span style={{ color: '#fff', background: '#b22', padding: '3px 8px', borderRadius: 5, fontSize: 12, fontWeight: 700 }}>
+              ⚠ COLLISION
+            </span>
+          )}
         </div>
       )}
     </>

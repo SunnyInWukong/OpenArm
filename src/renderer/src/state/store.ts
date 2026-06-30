@@ -26,6 +26,7 @@ interface AppState {
   selected: string | null // instruction id
   playing: boolean
   parts: Part[]
+  colliding: boolean
 
   addTarget(name: string, joints: number[], pose: Pose): Target
   removeTarget(id: string): void
@@ -45,6 +46,8 @@ interface AppState {
 
   addPart(name: string, object: Object3D): void
   removePart(id: string): void
+
+  setColliding(v: boolean): void
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -53,6 +56,7 @@ export const useStore = create<AppState>((set, get) => ({
   selected: null,
   playing: false,
   parts: [],
+  colliding: false,
 
   addTarget(name, joints, pose) {
     const t: Target = { id: newId(), name, joints: [...joints], pose }
@@ -139,6 +143,10 @@ export const useStore = create<AppState>((set, get) => ({
       })
       return { parts: s.parts.filter((p) => p.id !== id) }
     })
+  },
+
+  setColliding(v) {
+    if (get().colliding !== v) set({ colliding: v })
   }
 }))
 

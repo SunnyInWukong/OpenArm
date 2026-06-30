@@ -4,6 +4,7 @@ import { movableJointNames, solveIK, toolWorldPose } from './kinematics/ik'
 import { initReplay, stepReplay } from './kinematics/replay'
 import { computeTcpPose } from './kinematics/tcp'
 import { importCad, occtReady } from './cad/import'
+import { ensureBVH, robotCollisions } from './collision'
 import { useStore } from './state/store'
 import RobotViewport from './viewport/RobotViewport'
 import JogPanel from './panels/JogPanel'
@@ -32,7 +33,9 @@ export default function App() {
         stepReplay,
         useStore,
         importCad,
-        occtReady
+        occtReady,
+        ensureBVH,
+        robotCollisions
       }
   }, [robot])
 
