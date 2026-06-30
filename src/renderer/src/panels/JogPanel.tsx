@@ -78,7 +78,7 @@ export default function JogPanel({ robot, onChange }: { robot: URDFRobot; onChan
 
 const panel: React.CSSProperties = {
   position: 'absolute',
-  top: 44,
+  top: 56,
   left: 14,
   width: 240,
   padding: 14,

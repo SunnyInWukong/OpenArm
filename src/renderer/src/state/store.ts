@@ -29,6 +29,8 @@ interface AppState {
   parts: Part[]
   colliding: boolean
   tool: Tool
+  ikMode: 'translate' | 'rotate'
+  reachable: boolean
 
   addTarget(name: string, joints: number[], pose: Pose): Target
   removeTarget(id: string): void
@@ -52,6 +54,9 @@ interface AppState {
   setColliding(v: boolean): void
 
   setTool(patch: Partial<Tool>): void
+
+  setIkMode(m: 'translate' | 'rotate'): void
+  setReachable(v: boolean): void
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -62,6 +67,8 @@ export const useStore = create<AppState>((set, get) => ({
   parts: [],
   colliding: false,
   tool: DEFAULT_TOOL,
+  ikMode: 'translate',
+  reachable: true,
 
   addTarget(name, joints, pose) {
     const t: Target = { id: newId(), name, joints: [...joints], pose }
@@ -156,6 +163,13 @@ export const useStore = create<AppState>((set, get) => ({
 
   setTool(patch) {
     set((s) => ({ tool: { ...s.tool, ...patch } }))
+  },
+
+  setIkMode(m) {
+    set({ ikMode: m })
+  },
+  setReachable(v) {
+    if (get().reachable !== v) set({ reachable: v })
   }
 }))
 

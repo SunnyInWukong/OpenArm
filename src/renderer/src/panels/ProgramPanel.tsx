@@ -329,10 +329,10 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
 
 const panel: React.CSSProperties = {
   position: 'absolute',
-  top: 52,
+  top: 56,
   right: 14,
   width: 260,
-  maxHeight: 'calc(100% - 70px)',
+  maxHeight: 'calc(100% - 74px)',
   overflowY: 'auto',
   padding: 14,
   background: 'rgba(28,28,28,0.92)',
