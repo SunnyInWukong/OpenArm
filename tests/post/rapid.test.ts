@@ -10,8 +10,8 @@ const targets: Target[] = [
 const program: Program = {
   name: 'demo',
   instructions: [
-    { kind: 'move', id: 'i1', move: 'MoveJ', targetId: 't1', speed: 1.0 },
-    { kind: 'move', id: 'i2', move: 'MoveL', targetId: 't2', speed: 0.25 },
+    { kind: 'move', id: 'i1', move: 'MoveJ', targetId: 't1', speed: 1.0, blend: 0 },
+    { kind: 'move', id: 'i2', move: 'MoveL', targetId: 't2', speed: 0.25, blend: 0 },
     { kind: 'wait', id: 'i3', seconds: 1.5 },
     { kind: 'setdo', id: 'i4', pin: 0, value: true },
     { kind: 'comment', id: 'i5', text: 'done' }
@@ -34,6 +34,16 @@ ENDMODULE
 describe('rapid post-processor', () => {
   it('compiles the same program to exact RAPID (golden)', () => {
     expect(rapid.generate(program, targets)).toBe(expected)
+  })
+})
+
+describe('rapid blend', () => {
+  it('emits a zonedata zNN for a nonzero blend', () => {
+    const out = rapid.generate(
+      { name: 'x', instructions: [{ kind: 'move', id: 'm', move: 'MoveL', targetId: 't2', speed: 0.25, blend: 0.05 }] },
+      targets
+    )
+    expect(out).toContain(', z50, tool0;')
   })
 })
 

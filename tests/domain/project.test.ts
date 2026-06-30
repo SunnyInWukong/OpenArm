@@ -8,7 +8,7 @@ const targets: Target[] = [
 const program: Program = {
   name: 'demo',
   instructions: [
-    { kind: 'move', id: 'i1', move: 'MoveJ', targetId: 't1', speed: 1 },
+    { kind: 'move', id: 'i1', move: 'MoveJ', targetId: 't1', speed: 1, blend: 0 },
     { kind: 'wait', id: 'i2', seconds: 2 }
   ]
 }

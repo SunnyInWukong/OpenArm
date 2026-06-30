@@ -23,11 +23,17 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
       if (!t) return [`  # missing target ${ins.targetId}`]
       if (ins.move === 'MoveJ') {
         const q = t.joints.map(num).join(', ')
-        return [`  # MoveJ -> ${t.name}`, `  movej([${q}], a=${num(MOVEJ_ACCEL)}, v=${num(ins.speed)})`]
+        return [
+          `  # MoveJ -> ${t.name}`,
+          `  movej([${q}], a=${num(MOVEJ_ACCEL)}, v=${num(ins.speed)}, r=${num(ins.blend)})`
+        ]
       }
       const p = t.pose
       const pose = [p.x, p.y, p.z, p.rx, p.ry, p.rz].map(num).join(', ')
-      return [`  # MoveL -> ${t.name}`, `  movel(p[${pose}], a=${num(MOVEL_ACCEL)}, v=${num(ins.speed)})`]
+      return [
+        `  # MoveL -> ${t.name}`,
+        `  movel(p[${pose}], a=${num(MOVEL_ACCEL)}, v=${num(ins.speed)}, r=${num(ins.blend)})`
+      ]
     }
     case 'wait':
       return [`  sleep(${num(ins.seconds)})`]

@@ -29,6 +29,8 @@ export interface MoveInstruction {
   targetId: string
   /** MoveJ: rad/s, MoveL: m/s */
   speed: number
+  /** corner blend radius in metres; 0 = stop exactly on the point (fine) */
+  blend: number
 }
 
 export interface WaitInstruction {

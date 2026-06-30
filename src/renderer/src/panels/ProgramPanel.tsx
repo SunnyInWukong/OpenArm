@@ -42,11 +42,14 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
     addComment,
     removeInstruction,
     reorderInstruction,
+    updateInstruction,
     select,
     play,
     stop,
     loadProject
   } = useStore.getState()
+
+  const sel = program.instructions.find((i) => i.id === selected)
 
   const [showCode, setShowCode] = useState(false)
   const [postId, setPostId] = useState('urscript')
@@ -161,6 +164,54 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
         ))}
       </ol>
 
+      {sel && (
+        <div style={inspector}>
+          {sel.kind === 'move' && (
+            <>
+              <label style={fld}>
+                v
+                <input
+                  type="number"
+                  step={0.05}
+                  value={sel.speed}
+                  onChange={(e) => updateInstruction(sel.id, { speed: Number(e.target.value) })}
+                  style={numInp}
+                />
+              </label>
+              <label style={fld}>
+                blend
+                <input
+                  type="number"
+                  step={0.005}
+                  value={sel.blend}
+                  onChange={(e) => updateInstruction(sel.id, { blend: Number(e.target.value) })}
+                  style={numInp}
+                />
+              </label>
+            </>
+          )}
+          {sel.kind === 'wait' && (
+            <label style={fld}>
+              seconds
+              <input
+                type="number"
+                step={0.1}
+                value={sel.seconds}
+                onChange={(e) => updateInstruction(sel.id, { seconds: Number(e.target.value) })}
+                style={numInp}
+              />
+            </label>
+          )}
+          {sel.kind === 'comment' && (
+            <input
+              value={sel.text}
+              onChange={(e) => updateInstruction(sel.id, { text: e.target.value })}
+              style={{ ...numInp, width: '100%' }}
+            />
+          )}
+        </div>
+      )}
+
       <button onClick={playing ? stop : play} style={{ ...playBtn, background: playing ? '#7a2a2a' : '#2a5a2a' }}>
         {playing ? '■ Stop' : '▶ Play'}
       </button>
@@ -169,7 +220,7 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
         <button onClick={() => setShowCode((v) => !v)} style={smallBtn}>
           {showCode ? '▾' : '▸'} Code
         </button>
-        <select value={postId} onChange={(e) => setPostId(e.target.value)} style={sel}>
+        <select value={postId} onChange={(e) => setPostId(e.target.value)} style={vendorSel}>
           {postProcessors.map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
@@ -305,7 +356,33 @@ const inp: React.CSSProperties = {
   borderRadius: 5,
   fontSize: 12
 }
-const sel: React.CSSProperties = {
+const inspector: React.CSSProperties = {
+  display: 'flex',
+  gap: 8,
+  marginTop: 8,
+  padding: '8px',
+  background: 'rgba(120,150,255,0.10)',
+  border: '1px solid #3a4a6a',
+  borderRadius: 6
+}
+const fld: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 3,
+  fontSize: 11,
+  opacity: 0.85,
+  flex: 1
+}
+const numInp: React.CSSProperties = {
+  width: '100%',
+  padding: '4px 6px',
+  background: '#141414',
+  color: '#e0e0e0',
+  border: '1px solid #444',
+  borderRadius: 5,
+  fontSize: 12
+}
+const vendorSel: React.CSSProperties = {
   background: '#141414',
   color: '#e0e0e0',
   border: '1px solid #444',

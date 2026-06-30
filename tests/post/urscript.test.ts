@@ -20,8 +20,8 @@ const targets: Target[] = [
 const program: Program = {
   name: 'demo',
   instructions: [
-    { kind: 'move', id: 'i1', move: 'MoveJ', targetId: 't1', speed: 1.0 },
-    { kind: 'move', id: 'i2', move: 'MoveL', targetId: 't2', speed: 0.25 },
+    { kind: 'move', id: 'i1', move: 'MoveJ', targetId: 't1', speed: 1.0, blend: 0 },
+    { kind: 'move', id: 'i2', move: 'MoveL', targetId: 't2', speed: 0.25, blend: 0 },
     { kind: 'wait', id: 'i3', seconds: 1.5 },
     { kind: 'setdo', id: 'i4', pin: 0, value: true },
     { kind: 'comment', id: 'i5', text: 'done' }
@@ -31,9 +31,9 @@ const program: Program = {
 const expected = `def demo():
   set_tcp(p[0, 0, 0, 0, 0, 0])
   # MoveJ -> P1
-  movej([0.000000, -1.570800, 1.570800, 0.000000, 1.570800, 0.000000], a=1.400000, v=1.000000)
+  movej([0.000000, -1.570800, 1.570800, 0.000000, 1.570800, 0.000000], a=1.400000, v=1.000000, r=0.000000)
   # MoveL -> P2
-  movel(p[0.300000, 0.200000, 0.500000, 0.000000, 3.141600, 0.000000], a=1.200000, v=0.250000)
+  movel(p[0.300000, 0.200000, 0.500000, 0.000000, 3.141600, 0.000000], a=1.200000, v=0.250000, r=0.000000)
   sleep(1.500000)
   set_digital_out(0, True)
   # done
@@ -54,9 +54,17 @@ describe('urscript post-processor', () => {
 
   it('emits a placeholder for a missing target', () => {
     const out = urscript.generate(
-      { name: 'x', instructions: [{ kind: 'move', id: 'm', move: 'MoveJ', targetId: 'nope', speed: 1 }] },
+      { name: 'x', instructions: [{ kind: 'move', id: 'm', move: 'MoveJ', targetId: 'nope', speed: 1, blend: 0 }] },
       []
     )
     expect(out).toContain('# missing target nope')
+  })
+
+  it('emits a blend radius', () => {
+    const out = urscript.generate(
+      { name: 'x', instructions: [{ kind: 'move', id: 'm', move: 'MoveL', targetId: 't2', speed: 0.25, blend: 0.05 }] },
+      targets
+    )
+    expect(out).toContain('v=0.250000, r=0.050000)')
   })
 })

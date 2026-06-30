@@ -30,11 +30,12 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
       const t = byId.get(ins.targetId)
       if (!t) return [`    ! missing target ${ins.targetId}`]
       const v = `[${n(ins.speed * 1000)},500,5000,1000]`
+      const zone = ins.blend > 0 ? `z${Math.round(ins.blend * 1000)}` : 'fine'
       if (ins.move === 'MoveJ') {
         const j = t.joints.map((q) => n(q * DEG)).join(',')
         return [
           `    ! MoveJ -> ${t.name}`,
-          `    MoveAbsJ [[${j}],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, fine, tool0;`
+          `    MoveAbsJ [[${j}],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, ${zone}, tool0;`
         ]
       }
       const p = t.pose
@@ -43,7 +44,7 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
       const ori = `[${n(qw)},${n(qx)},${n(qy)},${n(qz)}]`
       return [
         `    ! MoveL -> ${t.name}`,
-        `    MoveL [${pos},${ori},[0,0,0,0],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, fine, tool0;`
+        `    MoveL [${pos},${ori},[0,0,0,0],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, ${zone}, tool0;`
       ]
     }
     case 'wait':

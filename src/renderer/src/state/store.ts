@@ -35,6 +35,7 @@ interface AppState {
   addComment(text: string): void
   removeInstruction(id: string): void
   reorderInstruction(id: string, delta: number): void
+  updateInstruction(id: string, patch: Record<string, unknown>): void
   select(id: string | null): void
 
   play(): void
@@ -73,8 +74,16 @@ export const useStore = create<AppState>((set, get) => ({
 
   addMove(targetId, move) {
     const speed = move === 'MoveL' ? 0.25 : 1.0
-    const instr: Instruction = { kind: 'move', id: newId(), move, targetId, speed }
+    const instr: Instruction = { kind: 'move', id: newId(), move, targetId, speed, blend: 0 }
     set((s) => ({ program: pushInstr(s.program, instr) }))
+  },
+  updateInstruction(id, patch) {
+    set((s) => ({
+      program: {
+        ...s.program,
+        instructions: s.program.instructions.map((i) => (i.id === id ? ({ ...i, ...patch } as Instruction) : i))
+      }
+    }))
   },
   addWait(seconds) {
     set((s) => ({ program: pushInstr(s.program, { kind: 'wait', id: newId(), seconds }) }))
