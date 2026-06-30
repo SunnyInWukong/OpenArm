@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { Mesh, Object3D } from 'three'
 import {
   emptyProgram,
   newId,
@@ -11,11 +12,20 @@ import {
 } from '@shared/domain/program'
 import type { ProjectFile } from '@shared/domain/project'
 
+// A workcell part (imported CAD). Holds a live three object; not yet persisted
+// in the saved project. ponytail: persist by embedding/refencing source files later.
+export interface Part {
+  id: string
+  name: string
+  object: Object3D
+}
+
 interface AppState {
   targets: Target[]
   program: Program
   selected: string | null // instruction id
   playing: boolean
+  parts: Part[]
 
   addTarget(name: string, joints: number[], pose: Pose): Target
   removeTarget(id: string): void
@@ -31,6 +41,9 @@ interface AppState {
   stop(): void
 
   loadProject(project: ProjectFile): void
+
+  addPart(name: string, object: Object3D): void
+  removePart(id: string): void
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -38,6 +51,7 @@ export const useStore = create<AppState>((set, get) => ({
   program: emptyProgram(),
   selected: null,
   playing: false,
+  parts: [],
 
   addTarget(name, joints, pose) {
     const t: Target = { id: newId(), name, joints: [...joints], pose }
@@ -99,6 +113,23 @@ export const useStore = create<AppState>((set, get) => ({
 
   loadProject(project) {
     set({ targets: project.targets, program: project.program, selected: null, playing: false })
+  },
+
+  addPart(name, object) {
+    set((s) => ({ parts: [...s.parts, { id: newId(), name, object }] }))
+  },
+  removePart(id) {
+    set((s) => {
+      const part = s.parts.find((p) => p.id === id)
+      part?.object.traverse((o) => {
+        const mesh = o as Mesh
+        mesh.geometry?.dispose()
+        const mat = mesh.material
+        if (Array.isArray(mat)) mat.forEach((m) => m.dispose())
+        else mat?.dispose()
+      })
+      return { parts: s.parts.filter((p) => p.id !== id) }
+    })
   }
 }))
 

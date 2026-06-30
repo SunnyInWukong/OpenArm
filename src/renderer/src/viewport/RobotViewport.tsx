@@ -94,6 +94,7 @@ export default function RobotViewport({
 }) {
   const [mode, setMode] = useState<'translate' | 'rotate'>('translate')
   const [reachable, setReachable] = useState(true)
+  const parts = useStore((s) => s.parts)
 
   return (
     <>
@@ -116,6 +117,10 @@ export default function RobotViewport({
         ) : (
           <Fallback error={error} />
         )}
+
+        {parts.map((p) => (
+          <primitive key={p.id} object={p.object} />
+        ))}
 
         <Grid
           args={[10, 10]}

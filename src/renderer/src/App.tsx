@@ -3,10 +3,12 @@ import { useRobot } from './kinematics/useRobot'
 import { movableJointNames, solveIK, toolWorldPose } from './kinematics/ik'
 import { initReplay, stepReplay } from './kinematics/replay'
 import { computeTcpPose } from './kinematics/tcp'
+import { importCad, occtReady } from './cad/import'
 import { useStore } from './state/store'
 import RobotViewport from './viewport/RobotViewport'
 import JogPanel from './panels/JogPanel'
 import ProgramPanel from './panels/ProgramPanel'
+import PartsPanel from './panels/PartsPanel'
 
 export default function App() {
   const { robot, error } = useRobot()
@@ -28,7 +30,9 @@ export default function App() {
         computeTcpPose,
         initReplay,
         stepReplay,
-        useStore
+        useStore,
+        importCad,
+        occtReady
       }
   }, [robot])
 
@@ -54,6 +58,7 @@ export default function App() {
 
       {robot && <JogPanel robot={robot} onChange={onChange} />}
       {robot && <ProgramPanel robot={robot} />}
+      <PartsPanel />
     </div>
   )
 }
