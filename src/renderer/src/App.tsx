@@ -5,6 +5,7 @@ import { initReplay, stepReplay } from './kinematics/replay'
 import { computeTcpPose } from './kinematics/tcp'
 import { importCad, occtReady } from './cad/import'
 import { ensureBVH, robotCollisions } from './collision'
+import { applyTool } from './kinematics/tool'
 import { useStore } from './state/store'
 import RobotViewport from './viewport/RobotViewport'
 import JogPanel from './panels/JogPanel'
@@ -13,6 +14,12 @@ import PartsPanel from './panels/PartsPanel'
 
 export default function App() {
   const { robot, error } = useRobot()
+  const tool = useStore((s) => s.tool)
+
+  // keep the mounted TCP frame in sync with the configured tool offset
+  useEffect(() => {
+    if (robot) applyTool(robot, tool)
+  }, [robot, tool])
 
   // one shared re-render signal: jog sliders and IK drag both mutate the same
   // robot object; bumping this refreshes the panel's angle + TCP readouts.

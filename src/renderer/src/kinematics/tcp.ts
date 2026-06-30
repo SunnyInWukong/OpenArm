@@ -1,5 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import type { URDFRobot } from 'urdf-loader'
+import { tcpFrame } from './tool'
 
 // TCP pose in the UR controller 'base' frame, in URScript format:
 // position in metres, orientation as a rotation vector (axis * angle, radians) —
@@ -22,7 +23,7 @@ const _s = new Vector3()
 export function computeTcpPose(robot: URDFRobot): TcpPose {
   robot.updateMatrixWorld(true)
   const base = robot.links['base'] ?? robot.links['base_link']
-  const tool = robot.links['tool0'] ?? robot.links['flange']
+  const tool = tcpFrame(robot)
 
   // tool relative to base (cancels the Y-up display rotation applied to the root)
   _rel.copy(_inv.copy(base.matrixWorld).invert()).multiply(tool.matrixWorld)

@@ -1,4 +1,5 @@
 import type { Instruction, Program, Target } from '../domain/program'
+import { DEFAULT_TOOL, isIdentityTool, type Tool } from '../domain/tool'
 import type { PostProcessor } from './post-processor'
 
 // ABB RAPID — deliberately a very different target from URScript, to prove the
@@ -24,7 +25,7 @@ function ident(name: string): string {
   return s.length ? s : 'OpenArm'
 }
 
-function emit(ins: Instruction, byId: Map<string, Target>): string[] {
+function emit(ins: Instruction, byId: Map<string, Target>, toolName: string): string[] {
   switch (ins.kind) {
     case 'move': {
       const t = byId.get(ins.targetId)
@@ -35,7 +36,7 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
         const j = t.joints.map((q) => n(q * DEG)).join(',')
         return [
           `    ! MoveJ -> ${t.name}`,
-          `    MoveAbsJ [[${j}],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, ${zone}, tool0;`
+          `    MoveAbsJ [[${j}],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, ${zone}, ${toolName};`
         ]
       }
       const p = t.pose
@@ -44,7 +45,7 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
       const ori = `[${n(qw)},${n(qx)},${n(qy)},${n(qz)}]`
       return [
         `    ! MoveL -> ${t.name}`,
-        `    MoveL [${pos},${ori},[0,0,0,0],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, ${zone}, tool0;`
+        `    MoveL [${pos},${ori},[0,0,0,0],[9E9,9E9,9E9,9E9,9E9,9E9]], ${v}, ${zone}, ${toolName};`
       ]
     }
     case 'wait':
@@ -56,11 +57,21 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
   }
 }
 
-function generate(program: Program, targets: Target[]): string {
+function toolDecl(tool: Tool): string {
+  const [qw, qx, qy, qz] = rotVecToQuat(tool.rx, tool.ry, tool.rz)
+  const tframe = `[[${n(tool.x * 1000)},${n(tool.y * 1000)},${n(tool.z * 1000)}],[${n(qw)},${n(qx)},${n(qy)},${n(qz)}]]`
+  // load is a placeholder (1 kg); users set real tool mass/cog on the controller
+  return `  PERS tooldata openarm_tool := [TRUE,${tframe},[1,[0,0,1],[1,0,0,0],0,0,0]];`
+}
+
+function generate(program: Program, targets: Target[], tool: Tool = DEFAULT_TOOL): string {
   const byId = new Map(targets.map((t) => [t.id, t]))
   const mod = ident(program.name || 'OpenArm')
-  const lines = [`MODULE ${mod}`, `  PROC main()`]
-  for (const ins of program.instructions) lines.push(...emit(ins, byId))
+  const toolName = isIdentityTool(tool) ? 'tool0' : 'openarm_tool'
+  const lines = [`MODULE ${mod}`]
+  if (!isIdentityTool(tool)) lines.push(toolDecl(tool))
+  lines.push('  PROC main()')
+  for (const ins of program.instructions) lines.push(...emit(ins, byId, toolName))
   lines.push('  ENDPROC', 'ENDMODULE')
   return lines.join('\n') + '\n'
 }

@@ -11,6 +11,7 @@ import {
   type Target
 } from '@shared/domain/program'
 import type { ProjectFile } from '@shared/domain/project'
+import { DEFAULT_TOOL, type Tool } from '@shared/domain/tool'
 
 // A workcell part (imported CAD). Holds a live three object; not yet persisted
 // in the saved project. ponytail: persist by embedding/refencing source files later.
@@ -27,6 +28,7 @@ interface AppState {
   playing: boolean
   parts: Part[]
   colliding: boolean
+  tool: Tool
 
   addTarget(name: string, joints: number[], pose: Pose): Target
   removeTarget(id: string): void
@@ -48,6 +50,8 @@ interface AppState {
   removePart(id: string): void
 
   setColliding(v: boolean): void
+
+  setTool(patch: Partial<Tool>): void
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -57,6 +61,7 @@ export const useStore = create<AppState>((set, get) => ({
   playing: false,
   parts: [],
   colliding: false,
+  tool: DEFAULT_TOOL,
 
   addTarget(name, joints, pose) {
     const t: Target = { id: newId(), name, joints: [...joints], pose }
@@ -147,6 +152,10 @@ export const useStore = create<AppState>((set, get) => ({
 
   setColliding(v) {
     if (get().colliding !== v) set({ colliding: v })
+  },
+
+  setTool(patch) {
+    set((s) => ({ tool: { ...s.tool, ...patch } }))
   }
 }))
 

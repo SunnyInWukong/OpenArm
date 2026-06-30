@@ -29,7 +29,7 @@ const program: Program = {
 }
 
 const expected = `def demo():
-  set_tcp(p[0, 0, 0, 0, 0, 0])
+  set_tcp(p[0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
   # MoveJ -> P1
   movej([0.000000, -1.570800, 1.570800, 0.000000, 1.570800, 0.000000], a=1.400000, v=1.000000, r=0.000000)
   # MoveL -> P2
@@ -58,6 +58,19 @@ describe('urscript post-processor', () => {
       []
     )
     expect(out).toContain('# missing target nope')
+  })
+
+  it('emits the tool TCP offset in set_tcp', () => {
+    const out = urscript.generate({ name: 'x', instructions: [] }, [], {
+      name: 'grip',
+      x: 0,
+      y: 0,
+      z: 0.15,
+      rx: 0,
+      ry: 0,
+      rz: 0
+    })
+    expect(out).toContain('set_tcp(p[0.000000, 0.000000, 0.150000, 0.000000, 0.000000, 0.000000])')
   })
 
   it('emits a blend radius', () => {

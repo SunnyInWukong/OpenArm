@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from 'three'
 import type { URDFRobot } from 'urdf-loader'
+import { tcpFrame } from './tool'
 
 // Numerical inverse kinematics by damped least squares, run directly on
 // urdf-loader's forward kinematics — no DH derivation, no frame mapping, no
@@ -20,7 +21,7 @@ const _d = new Quaternion()
 
 function toolWorld(robot: URDFRobot, pos: Vector3, quat: Quaternion): void {
   robot.updateMatrixWorld(true)
-  const t = robot.links['tool0'] ?? robot.links['flange']
+  const t = tcpFrame(robot)
   t.getWorldPosition(pos)
   t.getWorldQuaternion(quat)
 }

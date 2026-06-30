@@ -47,6 +47,21 @@ describe('rapid blend', () => {
   })
 })
 
+describe('rapid tool', () => {
+  it('declares and uses a tooldata when a tool offset is set', () => {
+    const out = rapid.generate({ name: 'x', instructions: [] }, [], {
+      name: 'grip',
+      x: 0,
+      y: 0,
+      z: 0.15,
+      rx: 0,
+      ry: 0,
+      rz: 0
+    })
+    expect(out).toContain('PERS tooldata openarm_tool := [TRUE,[[0.000,0.000,150.000],[1.000,0.000,0.000,0.000]]')
+  })
+})
+
 describe('rotVecToQuat', () => {
   it('identity for zero rotation', () => {
     expect(rotVecToQuat(0, 0, 0)).toEqual([1, 0, 0, 0])

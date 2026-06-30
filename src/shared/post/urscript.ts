@@ -1,4 +1,5 @@
 import type { Instruction, Program, Target } from '../domain/program'
+import { DEFAULT_TOOL, type Tool } from '../domain/tool'
 import type { PostProcessor } from './post-processor'
 
 // Universal Robots URScript. The program's Target.pose is already metres +
@@ -44,10 +45,11 @@ function emit(ins: Instruction, byId: Map<string, Target>): string[] {
   }
 }
 
-function generate(program: Program, targets: Target[]): string {
+function generate(program: Program, targets: Target[], tool: Tool = DEFAULT_TOOL): string {
   const byId = new Map(targets.map((t) => [t.id, t]))
   const fn = ident(program.name || 'openarm_program')
-  const lines = [`def ${fn}():`, `  set_tcp(p[0, 0, 0, 0, 0, 0])`]
+  const tcp = [tool.x, tool.y, tool.z, tool.rx, tool.ry, tool.rz].map(num).join(', ')
+  const lines = [`def ${fn}():`, `  set_tcp(p[${tcp}])`]
   for (const ins of program.instructions) lines.push(...emit(ins, byId))
   lines.push('end', `${fn}()`)
   return lines.join('\n') + '\n'

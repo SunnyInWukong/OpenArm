@@ -34,6 +34,7 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
   const program = useStore((s) => s.program)
   const selected = useStore((s) => s.selected)
   const playing = useStore((s) => s.playing)
+  const tool = useStore((s) => s.tool)
   const {
     addTarget,
     removeTarget,
@@ -46,25 +47,27 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
     select,
     play,
     stop,
-    loadProject
+    loadProject,
+    setTool
   } = useStore.getState()
 
   const sel = program.instructions.find((i) => i.id === selected)
 
   const [showCode, setShowCode] = useState(false)
+  const [showTool, setShowTool] = useState(false)
   const [postId, setPostId] = useState('urscript')
   const [host, setHost] = useState('127.0.0.1')
   const [port, setPort] = useState(30002)
   const [status, setStatus] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const post = getPost(postId)
-  const code = post.generate(program, targets)
+  const code = post.generate(program, targets, tool)
 
   async function send() {
     if (!window.openarm) return setStatus('desktop only')
     setStatus('sending…')
     // the UR bridge speaks URScript regardless of which vendor the code view shows
-    const script = getPost('urscript').generate(program, targets)
+    const script = getPost('urscript').generate(program, targets, tool)
     const r = await window.openarm.ur.sendScript({ host, port, script })
     setStatus(r.ok ? `sent ${r.bytes} bytes` : `error: ${r.error}`)
   }
@@ -106,6 +109,48 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
 
   return (
     <div style={panel}>
+      <div style={rowBetween}>
+        <button onClick={() => setShowTool((v) => !v)} style={smallBtn}>
+          {showTool ? '▾' : '▸'} Tool: {tool.name}
+        </button>
+      </div>
+      {showTool && (
+        <div style={{ marginBottom: 12 }}>
+          <input
+            value={tool.name}
+            onChange={(e) => setTool({ name: e.target.value })}
+            style={{ ...numInp, marginBottom: 6 }}
+            placeholder="tool name"
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+            {(['x', 'y', 'z'] as const).map((k) => (
+              <label key={k} style={fld}>
+                {k} (m)
+                <input
+                  type="number"
+                  step={0.005}
+                  value={tool[k]}
+                  onChange={(e) => setTool({ [k]: Number(e.target.value) })}
+                  style={numInp}
+                />
+              </label>
+            ))}
+            {(['rx', 'ry', 'rz'] as const).map((k) => (
+              <label key={k} style={fld}>
+                {k}
+                <input
+                  type="number"
+                  step={0.05}
+                  value={tool[k]}
+                  onChange={(e) => setTool({ [k]: Number(e.target.value) })}
+                  style={numInp}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={rowBetween}>
         <div style={head}>Targets</div>
         <button onClick={teach} style={smallBtn}>
