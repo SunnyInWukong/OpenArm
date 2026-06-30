@@ -49,4 +49,4 @@ Open the simulator UI at <http://localhost:6080/vnc.html>, then **Send to robot*
 
 ## License
 
-MIT © Wukoric
+MIT © Wukoric LLC

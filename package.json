@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Open-source offline robot programming and simulation",
   "license": "MIT",
-  "author": "Wukoric",
+  "author": "Wukoric LLC",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
