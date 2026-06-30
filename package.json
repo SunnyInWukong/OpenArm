@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "dist": "electron-vite build && electron-builder",
-    "build:win": "electron-vite build && electron-builder --win"
+    "build:win": "electron-vite build && electron-builder --win",
+    "validate:ursim": "node scripts/validate-ursim.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

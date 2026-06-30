@@ -3,8 +3,10 @@
 Open-source, offline robot programming and simulation for industrial arms — a free
 alternative to seat-licensed offline programming suites. Windows-first, local-first.
 
-> **Status:** early alpha. Working MVP for Universal Robots; more vendors and
-> features in progress.
+> **Status:** early alpha. Working tool for Universal Robots — generated programs
+> are **validated end-to-end against the official UR simulator (URSim)** — with
+> ABB RAPID export, collision detection, and CAD import. More vendors and features
+> in progress.
 
 ## What it does
 
@@ -93,6 +95,14 @@ docker run --rm -it -p 5900:5900 -p 6080:6080 -p 29999:29999 -p 30001-30004:3000
 ```
 
 Open <http://localhost:6080/vnc.html>, then **Send to robot** at `127.0.0.1:30002`.
+
+To check the whole pipeline automatically (powers on the sim, sends an
+OpenArm-shaped `movej`, and confirms the robot reaches the target via realtime
+joint feedback):
+
+```bash
+npm run validate:ursim
+```
 
 ## License
 
