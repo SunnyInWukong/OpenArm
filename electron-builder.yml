@@ -1,0 +1,33 @@
+appId: com.wukoric.openarm
+productName: OpenArm
+copyright: Copyright © 2026 Wukoric LLC
+
+directories:
+  output: dist
+  buildResources: build
+
+# electron-vite outputs the three processes to out/; the renderer (three.js,
+# react, the occt wasm asset) is fully bundled there. Main/preload pull no
+# third-party node_modules at runtime, so the app is just out/ + package.json.
+files:
+  - out/**
+  - package.json
+  - '!**/*.{map,md,ts}'
+
+win:
+  target:
+    - nsis
+  artifactName: ${productName}-${version}-setup.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+# Optional cross-platform targets, off by default; uncomment to produce them.
+# mac:
+#   target: dmg
+# linux:
+#   target: AppImage

@@ -1,0 +1,29 @@
+name: Release
+
+# Tag a commit (e.g. `git tag v0.1.0 && git push --tags`) to build the Windows
+# installer on a clean runner and attach it to a GitHub Release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build:win
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $installer = Get-ChildItem dist/*-setup.exe | Select-Object -First 1
+          gh release create $env:GITHUB_REF_NAME $installer.FullName --generate-notes
