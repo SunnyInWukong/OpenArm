@@ -48,7 +48,8 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
     play,
     stop,
     loadProject,
-    setTool
+    setTool,
+    setProgramName
   } = useStore.getState()
 
   const sel = program.instructions.find((i) => i.id === selected)
@@ -86,7 +87,10 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
     downloadText(code, `${program.name || 'program'}.${post.extension}`)
   }
   function saveProject() {
-    downloadText(serializeProject(program.name, targets, program), `${program.name || 'project'}.openarm.json`)
+    downloadText(
+      serializeProject(program.name, targets, program, tool),
+      `${program.name || 'project'}.openarm.json`
+    )
   }
   async function loadProjectFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -308,6 +312,12 @@ export default function ProgramPanel({ robot }: { robot: URDFRobot }) {
       {status && <div style={{ ...hint, marginTop: 6 }}>{status}</div>}
 
       <div style={head}>Project</div>
+      <input
+        value={program.name}
+        onChange={(e) => setProgramName(e.target.value)}
+        style={{ ...inp, marginBottom: 6 }}
+        placeholder="project name"
+      />
       <div style={{ display: 'flex', gap: 6 }}>
         <button onClick={saveProject} style={{ ...smallBtn, flex: 1 }}>
           Save project

@@ -47,6 +47,7 @@ interface AppState {
   stop(): void
 
   loadProject(project: ProjectFile): void
+  setProgramName(name: string): void
 
   addPart(name: string, object: Object3D): void
   removePart(id: string): void
@@ -137,7 +138,16 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   loadProject(project) {
-    set({ targets: project.targets, program: project.program, selected: null, playing: false })
+    set({
+      targets: project.targets,
+      program: project.program,
+      tool: project.tool,
+      selected: null,
+      playing: false
+    })
+  },
+  setProgramName(name) {
+    set((s) => ({ program: { ...s.program, name } }))
   },
 
   addPart(name, object) {

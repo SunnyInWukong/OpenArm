@@ -55,10 +55,9 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [robot, onChange])
 
-  // dev console handle for poking the robot / kinematics
-  // ponytail: handy debug aid in alpha; gate behind import.meta.env.DEV at hardening.
+  // dev console handle for poking the robot / kinematics — development builds only
   useEffect(() => {
-    if (robot)
+    if (robot && import.meta.env.DEV)
       (window as unknown as Record<string, unknown>).__oa = {
         robot,
         solveIK,

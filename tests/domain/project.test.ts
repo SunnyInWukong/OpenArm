@@ -24,6 +24,19 @@ describe('project serialize/parse', () => {
     }
   })
 
+  it('round-trips the tool', () => {
+    const tool = { name: 'grip', x: 0, y: 0, z: 0.15, rx: 0, ry: 0, rz: 0 }
+    const r = parseProject(serializeProject('demo', targets, program, tool))
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.project.tool).toEqual(tool)
+  })
+
+  it('defaults the tool for older files without one', () => {
+    const r = parseProject(JSON.stringify({ version: 1, name: 'x', targets: [], program: { instructions: [] } }))
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.project.tool.name).toBe('tool0')
+  })
+
   it('rejects invalid JSON', () => {
     expect(parseProject('{not json').ok).toBe(false)
   })
