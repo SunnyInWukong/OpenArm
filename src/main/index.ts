@@ -9,6 +9,7 @@ function createWindow(): void {
     show: false,
     backgroundColor: '#1a1a1a',
     title: 'OpenArm',
+    icon: join(__dirname, '../../build/icon.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false

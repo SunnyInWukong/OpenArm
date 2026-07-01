@@ -1,6 +1,7 @@
 import type { Instruction, Program, Target } from '../domain/program'
 import { DEFAULT_TOOL, isIdentityTool, type Tool } from '../domain/tool'
 import type { PostProcessor } from './post-processor'
+import { rotVecToQuat } from './rot'
 
 // ABB RAPID — deliberately a very different target from URScript, to prove the
 // program model is vendor-neutral: joints in DEGREES (MoveAbsJ jointtarget),
@@ -12,13 +13,7 @@ function n(x: number): string {
   return x.toFixed(3)
 }
 
-/** rotation vector (axis*angle, rad) -> quaternion [w, x, y, z] */
-export function rotVecToQuat(rx: number, ry: number, rz: number): [number, number, number, number] {
-  const a = Math.hypot(rx, ry, rz)
-  if (a < 1e-9) return [1, 0, 0, 0]
-  const s = Math.sin(a / 2) / a
-  return [Math.cos(a / 2), rx * s, ry * s, rz * s]
-}
+export { rotVecToQuat }
 
 function ident(name: string): string {
   const s = name.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^([0-9])/, '_$1')
