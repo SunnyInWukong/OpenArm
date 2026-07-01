@@ -1,6 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { URDFJoint, URDFRobot } from 'urdf-loader'
 import { computeTcpPose } from '../kinematics/tcp'
+import { movableJointNames, toolWorldPose } from '../kinematics/ik'
+import { classifyConfig, configLabel, enumerateIK, jointDist } from '../kinematics/ik-config'
 
 const DEG = 180 / Math.PI
 const TWO_PI = Math.PI * 2
@@ -23,6 +25,24 @@ export default function JogPanel({ robot, onChange }: { robot: URDFRobot; onChan
 
   // recomputed every render; App's tick re-renders us after jog or IK drag
   const tcp = computeTcpPose(robot)
+  const [configTxt, setConfigTxt] = useState('')
+
+  function flipConfig() {
+    const names = movableJointNames(robot)
+    const cur = toolWorldPose(robot)
+    const sols = enumerateIK(robot, names, cur.pos, cur.quat)
+    const curJoints = names.map((n) => Number(robot.joints[n].angle))
+    if (sols.length <= 1) {
+      setConfigTxt(`1 reachable config · ${configLabel(classifyConfig(curJoints))}`)
+      return
+    }
+    let idx = sols.findIndex((s) => jointDist(s, curJoints) < 0.05)
+    if (idx < 0) idx = 0
+    const next = (idx + 1) % sols.length
+    for (let i = 0; i < names.length; i++) robot.setJointValue(names[i], sols[next][i])
+    onChange()
+    setConfigTxt(`config ${next + 1}/${sols.length} · ${configLabel(classifyConfig(sols[next]))}`)
+  }
 
   function setJoint(name: string, valueRad: number) {
     robot.setJointValue(name, valueRad)
@@ -62,6 +82,15 @@ export default function JogPanel({ robot, onChange }: { robot: URDFRobot; onChan
       <button onClick={home} style={btn}>
         Home (all 0)
       </button>
+
+      <button onClick={flipConfig} style={btn}>
+        Flip config →
+      </button>
+      {configTxt && (
+        <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10, fontFamily: 'ui-monospace, monospace' }}>
+          {configTxt}
+        </div>
+      )}
 
       <div style={head}>TCP — base frame</div>
       <div style={mono}>

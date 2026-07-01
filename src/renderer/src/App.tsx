@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRobot } from './kinematics/useRobot'
 import { movableJointNames, solveIK, toolWorldPose } from './kinematics/ik'
+import { classifyConfig, enumerateIK } from './kinematics/ik-config'
 import { initReplay, stepReplay } from './kinematics/replay'
 import { computeTcpPose } from './kinematics/tcp'
 import { importCad, occtReady } from './cad/import'
@@ -70,7 +71,9 @@ export default function App() {
         importCad,
         occtReady,
         ensureBVH,
-        robotCollisions
+        robotCollisions,
+        enumerateIK,
+        classifyConfig
       }
   }, [robot])
 
