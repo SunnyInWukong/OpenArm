@@ -46,6 +46,14 @@ Found it useful, or hit a wall? Please open a
 [GitHub issue](../../issues) — bug reports, "this is missing X", and "we'd use this if…"
 are all equally welcome.
 
+## Safety & privacy
+
+Short version: **no telemetry, no accounts, no phone-home.** The only network
+connection OpenArm makes is to the robot/simulator host you type into "Send to
+robot" — everything else runs locally. Before running generated code on a real
+arm, simulate it in URSim first and read the plain-text URScript. Full details,
+including hardware-safety steps, are in [SECURITY.md](SECURITY.md).
+
 ## Stack
 
 Electron + React 19 + three.js / react-three-fiber, built with electron-vite. Robot
