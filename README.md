@@ -22,6 +22,30 @@ alternative to seat-licensed offline programming suites. Windows-first, local-fi
 The motion program is vendor-neutral; supporting a new robot is one post-processor + one
 golden test, not a rewrite.
 
+## Trying it out (evaluators welcome)
+
+If you have a Universal Robots arm — in a lab, a classroom, or on a line — I'd love for
+you to try OpenArm and tell me whether it's useful. It's early alpha, and feedback shapes
+what gets built next.
+
+**It's safe to evaluate:** OpenArm generates **standard URScript that you read before
+running**, and the exact program flow is **validated end to end against the official UR
+simulator (URSim)** — so you can prove a program in the simulator before it ever touches
+your robot.
+
+Suggested first run:
+
+1. Build/run from source (see [Develop](#develop)) or grab an installer from
+   [Releases](../../releases).
+2. Load the UR5e, jog/teach a couple of points, build a short MoveJ/MoveL program.
+3. Export the URScript (or hit **Send to robot** pointed at URSim — see
+   [below](#run-against-a-real-robot-or-ursim)).
+4. Watch it run in the simulator, read the generated code, then decide about hardware.
+
+Found it useful, or hit a wall? Please open a
+[GitHub issue](../../issues) — bug reports, "this is missing X", and "we'd use this if…"
+are all equally welcome.
+
 ## Stack
 
 Electron + React 19 + three.js / react-three-fiber, built with electron-vite. Robot
